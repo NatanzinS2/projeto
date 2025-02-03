@@ -1,4 +1,21 @@
+<?php
+session_start();
 
+if (!isset($_SESSION['usuario'])) {
+    header('Location: login.php');
+    exit();
+}
+
+include_once('config.php');
+$sql = "SELECT * FROM usuarios ORDER BY id DESC";
+$result = $conexao->query($sql);
+
+if ($result->num_rows > 0) {
+    $users = $result->fetch_all(MYSQLI_ASSOC);
+} else {
+    $users = [];
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -69,7 +86,16 @@
                 </tr>
             </thead>
             <tbody>
-               
+                <?php if (!empty($users)) : ?>
+                    <?php foreach ($users as $user_data) : ?>
+                        <tr>
+                            <td><?= htmlspecialchars($user_data['nome']) ?></td>
+                            <td><?= htmlspecialchars($user_data['email']) ?></td>
+                            <td><?= htmlspecialchars($user_data['telefone']) ?></td>
+                            <td><?= htmlspecialchars($user_data['sexo']) ?></td>
+                            <td><?= htmlspecialchars($user_data['data_nasc']) ?></td>
+                            <td><?= htmlspecialchars($user_data['cidade']) ?></td>
+                            <td><?= htmlspecialchars($user_data['endereco']) ?></td>
                             <td>
                             <a href="delete.php?id=<?= $user_data['id'] ?>" class="btn">
                             <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-trash-fill' viewBox='0 0 16 16'>
