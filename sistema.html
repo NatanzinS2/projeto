@@ -1,21 +1,3 @@
-<?php
-session_start();
-
-if (!isset($_SESSION['usuario'])) {
-    header('Location: login.php');
-    exit();
-}
-
-include_once('config.php');
-$sql = "SELECT * FROM usuarios ORDER BY id DESC";
-$result = $conexao->query($sql);
-
-if ($result->num_rows > 0) {
-    $users = $result->fetch_all(MYSQLI_ASSOC);
-} else {
-    $users = [];
-}
-?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -59,7 +41,7 @@ if ($result->num_rows > 0) {
             background-color: rgba(255, 255, 255, 0.1);
         }
 
-        .btn{
+        .btn {
             background-color: red;
             padding: 7px;
             border-radius: 10px;
@@ -69,7 +51,6 @@ if ($result->num_rows > 0) {
 </head>
 <body>
     <nav>
-        <img src="/img/atletica.png" alt="">
         <h1>Acessou o sistema</h1>
     </nav>
     <div class="m-5">
@@ -83,34 +64,76 @@ if ($result->num_rows > 0) {
                     <th>Data de nascimento</th>
                     <th>Cidade</th>
                     <th>Endereço</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
-                <?php if (!empty($users)) : ?>
-                    <?php foreach ($users as $user_data) : ?>
-                        <tr>
-                            <td><?= htmlspecialchars($user_data['nome']) ?></td>
-                            <td><?= htmlspecialchars($user_data['email']) ?></td>
-                            <td><?= htmlspecialchars($user_data['telefone']) ?></td>
-                            <td><?= htmlspecialchars($user_data['sexo']) ?></td>
-                            <td><?= htmlspecialchars($user_data['data_nasc']) ?></td>
-                            <td><?= htmlspecialchars($user_data['cidade']) ?></td>
-                            <td><?= htmlspecialchars($user_data['endereco']) ?></td>
-                            <td>
-                            <a href="delete.php?id=<?= $user_data['id'] ?>" class="btn">
-                            <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-trash-fill' viewBox='0 0 16 16'>
-                                 <path d='M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0'/>
-                                    </svg>
-                            </a></td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else : ?>
-                    <tr>
-                        <td colspan="8">Nenhum usuário encontrado.</td>
-                    </tr>
-                <?php endif; ?>
+            <tbody id="user-table-body">
+                <!-- As linhas dos usuários serão inseridas aqui via JavaScript -->
             </tbody>
         </table>
     </div>
+
+    <script>
+        // Verifique se o usuário está logado
+        if (!localStorage.getItem('usuario')) {
+            window.location.href = 'login.html'; // Redirecionar para a página de login
+        }
+
+        // Função para escapar caracteres e evitar XSS
+        function escapeHtml(str) {
+            const element = document.createElement('div');
+            if (str) {
+                element.innerText = str;
+                element.textContent = str;
+            }
+            return element.innerHTML;
+        }
+
+        // Simulando a obtenção de usuários de uma API
+        async function fetchUsers() {
+            try {
+                const response = await fetch('/api/usuarios'); // A URL da sua API
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar usuários');
+                }
+                const users = await response.json();
+                displayUsers(users);
+            } catch (error) {
+                console.error('Erro ao buscar usuários:', error);
+                document.getElementById('user-table-body').innerHTML = '<tr><td colspan="8">Erro ao carregar dados.</td></tr>';
+            }
+        }
+
+        // Função para preencher a tabela com os dados dos usuários
+        function displayUsers(users) {
+            const tbody = document.getElementById('user-table-body');
+            if (users.length > 0) {
+                tbody.innerHTML = users.map(user => {
+                    return `
+                        <tr>
+                            <td>${escapeHtml(user.nome)}</td>
+                            <td>${escapeHtml(user.email)}</td>
+                            <td>${escapeHtml(user.telefone)}</td>
+                            <td>${escapeHtml(user.sexo)}</td>
+                            <td>${escapeHtml(user.data_nasc)}</td>
+                            <td>${escapeHtml(user.cidade)}</td>
+                            <td>${escapeHtml(user.endereco)}</td>
+                            <td>
+                                <a href="delete.php?id=${user.id}" class="btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                        <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
+                                    </svg>
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="8">Nenhum usuário encontrado.</td></tr>';
+            }
+        }
+
+        fetchUsers();
+    </script>
 </body>
 </html>
