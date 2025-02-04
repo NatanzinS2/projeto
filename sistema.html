@@ -68,18 +68,14 @@
                 </tr>
             </thead>
             <tbody id="user-table-body">
-                <!-- As linhas dos usuários serão inseridas aqui via JavaScript -->
             </tbody>
         </table>
     </div>
 
     <script>
-        // Verifique se o usuário está logado
         if (!localStorage.getItem('usuario')) {
-            window.location.href = 'login.html'; // Redirecionar para a página de login
+            window.location.href = 'login.html';
         }
-
-        // Função para escapar caracteres e evitar XSS
         function escapeHtml(str) {
             const element = document.createElement('div');
             if (str) {
@@ -89,10 +85,9 @@
             return element.innerHTML;
         }
 
-        // Simulando a obtenção de usuários de uma API
         async function fetchUsers() {
             try {
-                const response = await fetch('/api/usuarios'); // A URL da sua API
+                const response = await fetch('/api/usuarios');
                 if (!response.ok) {
                     throw new Error('Erro ao carregar usuários');
                 }
