@@ -186,7 +186,7 @@
           const endereco = document.getElementById("endereco").value;
         
           // Enviando para o servidor Node.js via Fetch API
-          const response = await fetch("https://seu-backend.vercel.app/registrar", {
+          const response = await fetch("https://atletica-fisio.vercel.app", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ nome, email, telefone, sexo, data_nascimento, cidade, endereco }),
