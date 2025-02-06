@@ -173,38 +173,35 @@
     <footer>.</footer>
 
     <script>
-        document.getElementById('form').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            // Obter os valores dos campos do formulário
-            const nome = document.getElementById('nome').value;
-            const email = document.getElementById('email').value;
-            const telefone = document.getElementById('telefone').value;
-            const sexo = document.querySelector('input[name="sexo"]:checked').value;
-            const dataNascimento = document.getElementById('data_nascimento').value;
-            const cidade = document.getElementById('cidade').value;
-            const endereco = document.getElementById('endereco').value;
-
-            // Criar um objeto com os dados do usuário
-            const usuario = {
-                nome: nome,
-                email: email,
-                telefone: telefone,
-                sexo: sexo,
-                dataNascimento: dataNascimento,
-                cidade: cidade,
-                endereco: endereco
-            };
-
-            // Armazenar os dados no localStorage (simulação do banco de dados)
-            let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
-            usuarios.push(usuario);
-            localStorage.setItem('usuarios', JSON.stringify(usuarios));
-
-            alert('Dados enviados com sucesso!');
-            // Limpar o formulário
-            document.getElementById('form').reset();
+        document.querySelector("form").addEventListener("submit", async function (event) {
+          event.preventDefault(); // Evita o recarregamento da página
+        
+          // Pegando os valores do formulário
+          const nome = document.getElementById("nome").value;
+          const email = document.getElementById("email").value;
+          const telefone = document.getElementById("telefone").value;
+          const sexo = document.querySelector('input[name="sexo"]:checked').value;
+          const data_nascimento = document.getElementById("data_nascimento").value;
+          const cidade = document.getElementById("cidade").value;
+          const endereco = document.getElementById("endereco").value;
+        
+          // Enviando para o servidor Node.js via Fetch API
+          const response = await fetch("https://seu-backend.vercel.app/registrar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nome, email, telefone, sexo, data_nascimento, cidade, endereco }),
+          });
+        
+          const result = await response.json();
+        
+          if (result.success) {
+            alert("Cadastro realizado com sucesso!");
+            window.location.href = "sistema.html"; // Redireciona para a página sistema.html
+          } else {
+            alert("Erro ao cadastrar. Tente novamente!");
+          }
         });
-    </script>
+        </script>
+        
 </body>
 </html>
